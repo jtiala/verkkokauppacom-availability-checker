@@ -1,0 +1,20 @@
+{
+  "name": "verkkokauppacom-availability-alert",
+  "description": "Check if one or more products are in stock in Verkkokauppa.com",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Joonas Tiala <joonas.tiala@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "format": "prettier -w '**/*.{ts,tsx,js,json,css,html,md}'"
+  },
+  "dependencies": {
+    "follow-redirects": "^1.14.5",
+    "jsdom": "^18.0.1",
+    "yargs": "^17.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.1.0",
+    "prettier": "^2.4.1"
+  }
+}
