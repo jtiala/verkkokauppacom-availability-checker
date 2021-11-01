@@ -1,5 +1,5 @@
 {
-  "name": "verkkokauppacom-availability-alert",
+  "name": "verkkokauppacom-availability-checker",
   "description": "Check if one or more products are in stock in Verkkokauppa.com",
   "version": "1.0.0",
   "main": "index.js",

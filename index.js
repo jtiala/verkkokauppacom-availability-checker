@@ -8,7 +8,7 @@ const { JSDOM } = require("jsdom");
 const args = yargs(hideBin(process.argv)).argv;
 
 if (Object.keys(args).includes("h")) {
-  console.info("Verkkokauppa.com availability alert");
+  console.info("Verkkokauppa.com availability checker");
   console.info("\nusage:");
   console.info("node index.js [options] [arguments (product IDs)]");
   console.info("\nexample:");
