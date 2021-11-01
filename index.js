@@ -16,7 +16,9 @@ if (Object.keys(args).includes("h")) {
   console.info("\noptions:");
   console.info(" -m mode");
   console.info("      available modes:");
-  console.info("        - cron: show output only for available items");
+  console.info("        - default: show output for all items");
+  console.info("        - cron:    show output only for available items");
+  console.info("                   (cron output can be forwarded to email)");
 
   exit();
 }
@@ -25,7 +27,7 @@ const productIds = Array.isArray(args["_"]) ? args["_"] : [args["_"]];
 const mode = args["m"] === "cron" ? "cron" : "default";
 
 if (productIds.length === 0) {
-  console.error("Please define product IDs as args");
+  console.error("Please define product IDs as arguments.");
   console.info("Use node index.js -h for help.");
 
   exit();
