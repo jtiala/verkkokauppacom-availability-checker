@@ -7,28 +7,46 @@ const { JSDOM } = require("jsdom");
 
 const args = yargs(hideBin(process.argv)).argv;
 
+const productIds = Array.isArray(args["_"]) ? args["_"] : [args["_"]];
+const mode = args["m"] === "cron" ? "cron" : "default";
+
+const output = (content, type = "info", alwaysPrint = false) => {
+  if (mode === "default" || alwaysPrint) {
+    if (type === "error") {
+      console.error(content);
+    } else {
+      console.info(content);
+    }
+  }
+};
+
 if (Object.keys(args).includes("h")) {
-  console.info("Verkkokauppa.com availability checker");
-  console.info("\nusage:");
-  console.info("node index.js [options] [arguments (product IDs)]");
-  console.info("\nexample:");
-  console.info("node index.js -m cron 45515 75645 14176");
-  console.info("\noptions:");
-  console.info(" -m mode");
-  console.info("      available modes:");
-  console.info("        - default: show output for all items");
-  console.info("        - cron:    show output only for available items");
-  console.info("                   (cron output can be forwarded to email)");
+  output("Verkkokauppa.com availability checker", "info", true);
+  output("\nusage:", "info", true);
+  output("node index.js [options] [arguments (product IDs)]", "info", true);
+  output("\nexample:", "info", true);
+  output("node index.js -m cron 45515 75645 14176", "info", true);
+  output("\noptions:", "info", true);
+  output(" -m mode", "info", true);
+  output("      available modes:", "info", true);
+  output("        - default: show output for all items", "info", true);
+  output(
+    "        - cron:    show output only for available items",
+    "info",
+    true
+  );
+  output(
+    "                   (cron output can be forwarded to email)",
+    "info",
+    true
+  );
 
   exit();
 }
 
-const productIds = Array.isArray(args["_"]) ? args["_"] : [args["_"]];
-const mode = args["m"] === "cron" ? "cron" : "default";
-
 if (productIds.length === 0) {
-  console.error("Please define product IDs as arguments.");
-  console.info("Use node index.js -h for help.");
+  output("Please define product IDs as arguments.", "error", true);
+  output("Use node index.js -h for help.", "info", true);
 
   exit();
 }
@@ -40,6 +58,11 @@ productIds.map((productId) => {
   const url = getUrl(productId);
 
   https.get(url, (res) => {
+    if (res.statusCode !== 200) {
+      output("Product page not found", "error");
+      return;
+    }
+
     res.setEncoding("utf8");
 
     let body = "";
@@ -50,35 +73,47 @@ productIds.map((productId) => {
 
     res.on("end", () => {
       const dom = new JSDOM(body);
-      const title = dom.window.document.querySelector(
-        "section.page__product header h1"
-      ).textContent;
 
-      const addToCartButton = dom.window.document.querySelector(
+      const headerElement = dom.window.document.querySelector(
+        "section.page__product header h1"
+      );
+
+      const addToCartButtonElement = dom.window.document.querySelector(
         "div.shipment-details button"
       );
-      const addToCartButtonAriaDisabledAttribute =
-        addToCartButton.attributes.getNamedItem("aria-disabled");
+
+      const addToCartButtonAriaDisabledAttribute = addToCartButtonElement
+        ? addToCartButtonElement.attributes.getNamedItem("aria-disabled")
+        : undefined;
+
+      const availableAmountElement = dom.window.document.querySelector(
+        "div.shipment-details div span"
+      );
+
+      if (!headerElement) {
+        output("Product page not loaded correctly", "error");
+        return;
+      }
+
+      const title = headerElement.textContent;
 
       const available = addToCartButtonAriaDisabledAttribute
         ? addToCartButtonAriaDisabledAttribute.value === false
         : true;
 
-      const availableAmountString = available
-        ? dom.window.document.querySelector("div.shipment-details div span")
-            .textContent
-        : "";
+      const amount = availableAmountElement
+        ? availableAmountElement.textContent
+        : undefined;
 
-      if (mode === "default" || (mode === "cron" && available)) {
-        console.info(`\n${title} (${productId})`);
-        console.info(`${url}`);
-
-        console.info(
-          available
-            ? `✅ available (${availableAmountString})`
-            : `❌ not available`
-        );
-      }
+      output(`\n${title} (${productId})`);
+      output(`${url}`);
+      output(
+        available && amount
+          ? `✅ available (${amount})`
+          : available
+          ? `✅ available`
+          : `❌ not available`
+      );
     });
   });
 });
