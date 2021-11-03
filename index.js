@@ -105,14 +105,16 @@ productIds.map((productId) => {
         ? availableAmountElement.textContent
         : undefined;
 
-      output(`\n${title} (${productId})`);
-      output(`${url}`);
+      output(`\n${title} (${productId})`, "info", available);
+      output(`${url}`, "info", available);
       output(
         available && amount
           ? `✅ available (${amount})`
           : available
           ? `✅ available`
-          : `❌ not available`
+          : `❌ not available`,
+        "info",
+        available
       );
     });
   });
